@@ -54,6 +54,7 @@ class Game extends React.Component {
       ],
       turn: true,
       stepNumber: 0,
+      moveHistory: [{ move: [null, null] }],
     };
   }
 
@@ -61,6 +62,28 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const array = [...current.squares];
+    const moveHistory = [...this.state.moveHistory];
+    const currentMove = moveHistory[moveHistory.length - 1];
+    let movement = [...currentMove.move];
+
+    let col = "";
+    let row = "";
+    if (i === 0 || i === 3 || i === 6) {
+      col = "1";
+    } else if (i === 1 || i === 4 || i === 7) {
+      col = "2";
+    } else {
+      col = "3";
+    }
+    if (i === 0 || i === 1 || i === 2) {
+      row = "1";
+    } else if (i === 3 || i === 4 || i === 5) {
+      row = "2";
+    } else {
+      row = "3";
+    }
+
+    movement = [col, row];
 
     if (calculateWinner(array) || array[i]) {
       return;
@@ -72,6 +95,7 @@ class Game extends React.Component {
       history: history.concat([{ squares: array }]),
       turn: !turn,
       stepNumber: history.length,
+      moveHistory: moveHistory.concat([{ move: movement }]),
     });
   };
 
@@ -96,6 +120,16 @@ class Game extends React.Component {
       );
     });
 
+    const movesy = this.state.moveHistory;
+    const moveHistory = movesy.map((el, index) => {
+      const name = el.move;
+      return (
+        <li key={index}>
+          <button onClick={() => this.jumpTo(index)}>{name}</button>
+        </li>
+      );
+    });
+
     let status;
     if (winner) {
       status = "Winner: " + winner;
@@ -106,7 +140,6 @@ class Game extends React.Component {
     return (
       <div className="game">
         <div className="game-board">
-          {/* <div className="status">{status}</div> */}
           <Board
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
@@ -115,6 +148,7 @@ class Game extends React.Component {
         <div className="game-info">
           <div>{status}</div>
           <ol>{moves}</ol>
+          <ol>{moveHistory}</ol>
         </div>
       </div>
     );
