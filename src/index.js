@@ -62,7 +62,10 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const array = [...current.squares];
-    const moveHistory = [...this.state.moveHistory];
+    const moveHistory = this.state.moveHistory.slice(
+      0,
+      this.state.stepNumber + 1
+    );
     const currentMove = moveHistory[moveHistory.length - 1];
     let movement = [...currentMove.move];
 
@@ -83,7 +86,7 @@ class Game extends React.Component {
       row = "3";
     }
 
-    movement = [col, row];
+    movement = [row, col];
 
     if (calculateWinner(array) || array[i]) {
       return;
@@ -111,21 +114,19 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
+    const movesy = this.state.moveHistory;
     const moves = history.map((step, index) => {
-      const desc = index ? "Go to move #" + index : "Go to game start";
+      const desc = index
+        ? "Go to move #" +
+          index +
+          " Player clicked column: " +
+          movesy[index].move[0] +
+          " row: " +
+          movesy[index].move[1]
+        : "Go to game start";
       return (
         <li key={index}>
           <button onClick={() => this.jumpTo(index)}>{desc}</button>
-        </li>
-      );
-    });
-
-    const movesy = this.state.moveHistory;
-    const moveHistory = movesy.map((el, index) => {
-      const name = el.move;
-      return (
-        <li key={index}>
-          <button onClick={() => this.jumpTo(index)}>{name}</button>
         </li>
       );
     });
@@ -148,7 +149,6 @@ class Game extends React.Component {
         <div className="game-info">
           <div>{status}</div>
           <ol>{moves}</ol>
-          <ol>{moveHistory}</ol>
         </div>
       </div>
     );
