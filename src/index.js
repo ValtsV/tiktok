@@ -55,6 +55,7 @@ class Game extends React.Component {
       turn: true,
       stepNumber: 0,
       moveHistory: [{ move: [null, null] }],
+      clicked: null,
     };
   }
 
@@ -106,6 +107,7 @@ class Game extends React.Component {
     this.setState({
       stepNumber: step,
       turn: step % 2 === 0,
+      clicked: step,
     });
   };
 
@@ -113,6 +115,7 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
+    let isBold = null;
 
     const movesy = this.state.moveHistory;
     const moves = history.map((step, index) => {
@@ -124,9 +127,17 @@ class Game extends React.Component {
           " row: " +
           movesy[index].move[1]
         : "Go to game start";
+      if (index === this.state.clicked) {
+        isBold = "bolded";
+      } else {
+        isBold = null;
+      }
+      console.log(index, this.state.clicked);
       return (
         <li key={index}>
-          <button onClick={() => this.jumpTo(index)}>{desc}</button>
+          <button className={isBold} onClick={() => this.jumpTo(index)}>
+            {desc}
+          </button>
         </li>
       );
     });
