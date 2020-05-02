@@ -14,32 +14,40 @@ class Board extends React.Component {
   renderSquare(i) {
     return (
       <Square
+        key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
       />
     );
   }
 
+  fillBoard = () => {
+    //make an empty array for storing the rows
+    let rows = [];
+    //a function scoped counter for keeping track of current square
+    let counter = 0;
+    for (let x = 0; x < 3; x++) {
+      //create an array to store each child of board-row (square)
+      let rowSquares = [];
+      for (let y = 0; y < 3; y++) {
+        //fill the second array with the children (squares)
+        rowSquares.push(this.renderSquare(counter));
+        //increase function scoped variable to track current square
+        counter++;
+      }
+      //push each row object into the first array with the children array included
+      rows.push(
+        <div className="board-row" key={x}>
+          {rowSquares}
+        </div>
+      );
+    }
+    //return the rows array
+    return rows;
+  };
+
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+    return <div>{this.fillBoard()}</div>;
   }
 }
 
@@ -55,7 +63,7 @@ class Game extends React.Component {
       turn: true,
       stepNumber: 0,
       moveHistory: [{ move: [null, null] }],
-      clicked: null,
+      switch: true,
     };
   }
 
@@ -107,7 +115,6 @@ class Game extends React.Component {
     this.setState({
       stepNumber: step,
       turn: step % 2 === 0,
-      clicked: step,
     });
   };
 
@@ -115,10 +122,9 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
-    let isBold = null;
 
     const movesy = this.state.moveHistory;
-    const moves = history.map((step, index) => {
+    let moves = history.map((step, index) => {
       const desc = index
         ? "Go to move #" +
           index +
@@ -127,12 +133,10 @@ class Game extends React.Component {
           " row: " +
           movesy[index].move[1]
         : "Go to game start";
-      if (index === this.state.clicked) {
-        isBold = "bolded";
-      } else {
-        isBold = null;
-      }
-      console.log(index, this.state.clicked);
+
+      let isBold = null;
+      isBold = index === this.state.stepNumber ? "bolded" : null;
+
       return (
         <li key={index}>
           <button className={isBold} onClick={() => this.jumpTo(index)}>
@@ -149,6 +153,9 @@ class Game extends React.Component {
       status = "Next player: " + (this.state.turn ? "X" : "O");
     }
 
+    moves = this.state.switch ? moves : moves.reverse();
+    const reverse = this.state.switch ? null : "reversed";
+
     return (
       <div className="game">
         <div className="game-board">
@@ -159,7 +166,16 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+          <ol reversed={reverse}> {moves}</ol>
+        </div>
+        <div>
+          <button
+            onClick={() => {
+              this.setState({ switch: !this.state.switch });
+            }}
+          >
+            Something
+          </button>
         </div>
       </div>
     );
